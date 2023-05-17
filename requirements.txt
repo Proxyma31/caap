@@ -1,0 +1,7 @@
+   pandas
+   matplotlib
+   seaborn
+   pillow
+   scikit-learn
+   xgboost
+   streamlit_option_menu
