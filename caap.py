@@ -6,6 +6,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
 from sklearn import tree
@@ -14,6 +16,7 @@ from xgboost import XGBClassifier
 import streamlit as st
 from streamlit_option_menu import option_menu
 from PIL import Image
+from statistics import mode
 
 im = Image.open('icon.png')
 st.set_page_config(layout="centered", page_title="CAAp", page_icon=im)
@@ -28,8 +31,8 @@ with st.sidebar:
     st.title(":mag: Navigation Bar")
     s = option_menu(
         menu_title=None,
-        options=["Home", "Project", "Devs", "Future Scope"],
-        icons=["house", "book", "robot", "clock"],
+        options=["Home", "Project", "Devs", "Future Scope", "Help"],
+        icons=["house", "book", "robot", "clock", "gear"],
         menu_icon="cast",
         default_index=0,
         orientation="vertical",
@@ -41,7 +44,7 @@ with st.sidebar:
 
 if s == "Home":
     st.title(":green[CAAp]")
-    st.subheader("An Application For Chemical Analysis Powered By Machine Learning")
+    st.subheader("An Application For Concentration Analysis Powered By Machine Learning")
     st.header(":microscope:")
 
 if s == "Project":
@@ -58,7 +61,7 @@ if s == "Project":
         }
     )
     if s1 == "Data and Model":
-        uploaded_files = st.file_uploader("Choose a xlsx file", type="xlsx")
+        uploaded_files = st.file_uploader("Choose file for Training in xlsx Format", type="xlsx")
         if uploaded_files:
             df = pd.read_excel(uploaded_files, engine="openpyxl")
             st.header(':white_check_mark: Uploaded')
@@ -126,7 +129,7 @@ if s == "Project":
                 st.pyplot(plt)
 
         if s1 == "Data and Model":
-            uploaded_files_Custom = st.file_uploader("Choose a xlsx custom file", type="xlsx")
+            uploaded_files_Custom = st.file_uploader("Choose Custom file for testing in xlsx Format", type="xlsx")
             if uploaded_files_Custom:
                 df = pd.read_excel(uploaded_files_Custom, engine="openpyxl")
                 st.header(':white_check_mark: Uploaded')
@@ -135,7 +138,10 @@ if s == "Project":
                 sc1 = MinMaxScaler()
                 sc1.fit(X_custom)
                 X_scaled_custom = sc1.transform(X_custom)
-
+        st.header("Select a Model")
+        st.subheader(":pushpin: Note from the Devs, Support Vector Machine, K Nearest Neighbour is recommended for "
+                     "there better accuracy and Xgboost is not recommended due to its time costing processing "
+                     ":pushpin:")
         button1 = st.checkbox('Decision Tree Classifier')
         if button1:
             x_train, x_test, y_train, y_test = train_test_split(X_scaled, Y, test_size=0.25, random_state=50)
@@ -197,6 +203,23 @@ if s == "Project":
                 for i in range(0, len(y_predicted_dct_custom)):
                     st.subheader(
                         f"Input No.  {i+1}  the model predicted Concentration  -->  {y_predicted_dct_custom[i]}")
+            else:
+                pass
+            choose_dct6 = st.button('Suggestion on Custom Data')
+            if choose_dct6:
+                ans = mode(y_predicted_dct_custom)
+                sugg = ((ans / 1000000) / 180.16) * 1000000
+                sugg1 = sugg * 1000
+                st.subheader(f"In the Custom Input The Most Frequent Occurring Concentration is {ans} microMolar")
+                st.subheader(f"Which is Equal to {sugg1} mg/L")
+                if 225 < sugg1 < 1500:
+                    st.subheader("Because the Current Concentration is in Ideal Range of 225 to 1500 mg/L according "
+                                 "to N.L.H.")
+                    st.subheader("So it is Recommended :thumbsup:")
+                else:
+                    st.subheader("Because the Current Concentration is not in Ideal Range of 225 to 1500 mg/L according"
+                                 " to N.L.H.")
+                    st.subheader("So it is not Recommended :thumbsdown:")
             else:
                 pass
         else:
@@ -265,9 +288,26 @@ if s == "Project":
                     st.subheader(f"Input No. {i+1} the model predicted Concentration --> {y_predicted_rfc_custom[i]}")
             else:
                 pass
+            choose_dct6 = st.button('Suggestion on Custom Data')
+            if choose_dct6:
+                ans = mode(y_predicted_rfc_custom)
+                sugg = ((ans / 1000000) / 180.16) * 1000000
+                sugg1 = sugg * 1000
+                st.subheader(f"In the Custom Input The Most Frequent Occurring Concentration is {ans} microMolar")
+                st.subheader(f"Which is Equal to {sugg1} mg/L")
+                if 225 < sugg1 < 1500:
+                    st.subheader("Because the Current Concentration is in Ideal Range of 225 to 1500 mg/L according "
+                                 "to N.L.H.")
+                    st.subheader("So it is Recommended :thumbsup:")
+                else:
+                    st.subheader("Because the Current Concentration is not in Ideal Range of 225 to 1500 mg/L according"
+                                 " to N.L.H.")
+                    st.subheader("So it is not Recommended :thumbsdown:")
+            else:
+                pass
         else:
             pass
-        button3 = st.checkbox('xgboost')
+        button3 = st.checkbox('Xgboost Classifier')
         if button3:
             x_train, x_test, y_train, y_test = train_test_split(X_scaled, Y, test_size=0.25, random_state=50)
 
@@ -324,6 +364,153 @@ if s == "Project":
                         f"Input No. {i+1} the model predicted Concentration --> {y_predicted_xgb_custom_inv[i]}")
             else:
                 pass
+            choose_dct5 = st.button('Suggestion on Custom Data')
+            if choose_dct5:
+                ans = mode(y_predicted_xgb_custom_inv)
+                sugg = ((ans / 1000000) / 180.16) * 1000000
+                sugg1 = sugg * 1000
+                st.subheader(f"In the Custom Input The Most Frequent Occurring Concentration is {ans} microMolar")
+                st.subheader(f"Which is Equal to {sugg1} mg/L")
+                if 225 < sugg1 < 1500:
+                    st.subheader("Because the Current Concentration is in Ideal Range of 225 to 1500 mg/L according "
+                                 "to N.L.H.")
+                    st.subheader("So it is Recommended :thumbsup:")
+                else:
+                    st.subheader("Because the Current Concentration is not in Ideal Range of 225 to 1500 mg/L according"
+                                 " to N.L.H.")
+                    st.subheader("So it is not Recommended :thumbsdown:")
+            else:
+                pass
+        button4 = st.checkbox('Support Vector Machine')
+        if button4:
+            x_train, x_test, y_train, y_test = train_test_split(X_scaled, Y, test_size=0.25, random_state=50)
+            classifier3 = SVC(kernel='rbf', random_state=6, cache_size=200, C=1000, gamma=1,
+                              decision_function_shape='ovr', degree=3, coef0=0.00001, tol=0.0000001)
+            classifier3.fit(x_train, y_train)
+            y_predicted_svm = classifier3.predict(x_test)
+            y_predicted_svm_custom = classifier3.predict(X_scaled_custom)
+            accuracy = f1_score(y_test, y_predicted_svm, average='weighted')
+            c1 = confusion_matrix(y_test, y_predicted_svm)
+
+            choose_dct1 = st.button('Model Accuracy')
+            if choose_dct1:
+                st.header('Model Accuracy')
+                st.subheader(accuracy * 100)
+            else:
+                pass
+            choose_dct2 = st.button('Heatmap')
+            if choose_dct2:
+                plt.figure(figsize=(8, 6))
+                sns.heatmap(c1, annot=True)
+                plt.xlabel('predict')
+                plt.ylabel('Truth')
+                st.pyplot(plt)
+            else:
+                pass
+            choose_dct3 = st.button('Plot')
+            if choose_dct3:
+                plt.figure(figsize=(8, 6))
+                plt.subplot(1, 2, 1)
+                plt.scatter(y_test.index, y_test, color='black')
+                plt.xlabel('index')
+                plt.ylabel('Test_data')
+                plt.subplot(1, 2, 2)
+                plt.scatter(y_test.index, y_predicted_svm, color='green')
+                plt.xlabel('index')
+                plt.ylabel('Predicted_data')
+                st.pyplot(plt)
+            else:
+                pass
+            choose_dct4 = st.button('Custom Data Input Result')
+            if choose_dct4:
+                st.header("Custom output data")
+                for i in range(0, len(y_predicted_svm_custom)):
+                    st.subheader(
+                        f"Input No. {i + 1} the model predicted Concentration --> {y_predicted_svm_custom[i]}")
+            else:
+                pass
+            choose_dct5 = st.button('Suggestion on Custom Data')
+            if choose_dct5:
+                ans = mode(y_predicted_svm_custom)
+                sugg = ((ans / 1000000) / 180.16) * 1000000
+                sugg1 = sugg * 1000
+                st.subheader(f"In the Custom Input The Most Frequent Occurring Concentration is {ans} microMolar")
+                st.subheader(f"Which is Equal to {sugg1} mg/L")
+                if 225 < sugg1 < 1500:
+                    st.subheader("Because the Current Concentration is in Ideal Range of 225 to 1500 mg/L according "
+                                 "to N.L.H.")
+                    st.subheader("So it is Recommended :thumbsup:")
+                else:
+                    st.subheader("Because the Current Concentration is not in Ideal Range of 225 to 1500 mg/L according"
+                                 " to N.L.H.")
+                    st.subheader("So it is not Recommended :thumbsdown:")
+            else:
+                pass
+        button4 = st.checkbox('K Nearest Neighbour')
+        if button4:
+            x_train, x_test, y_train, y_test = train_test_split(X_scaled, Y, test_size=0.25, random_state=50)
+            classifier2 = KNeighborsClassifier(n_neighbors=6, metric='minkowski', p=2)
+            classifier2.fit(x_train, y_train)
+            y_predicted_knn = classifier2.predict(x_test)
+            y_predicted_knn_custom = classifier2.predict(X_scaled_custom)
+
+            accuracy = f1_score(y_test, y_predicted_knn, average='weighted')
+            c1 = confusion_matrix(y_test, y_predicted_knn)
+
+            choose_dct1 = st.button('Model Accuracy')
+            if choose_dct1:
+                st.header('Model Accuracy')
+                st.subheader(accuracy * 100)
+            else:
+                pass
+            choose_dct2 = st.button('Heatmap')
+            if choose_dct2:
+                plt.figure(figsize=(8, 6))
+                sns.heatmap(c1, annot=True)
+                plt.xlabel('predict')
+                plt.ylabel('Truth')
+                st.pyplot(plt)
+            else:
+                pass
+            choose_dct3 = st.button('Plot')
+            if choose_dct3:
+                plt.figure(figsize=(8, 6))
+                plt.subplot(1, 2, 1)
+                plt.scatter(y_test.index, y_test, color='black')
+                plt.xlabel('index')
+                plt.ylabel('Test_data')
+                plt.subplot(1, 2, 2)
+                plt.scatter(y_test.index, y_predicted_knn, color='green')
+                plt.xlabel('index')
+                plt.ylabel('Predicted_data')
+                st.pyplot(plt)
+            else:
+                pass
+            choose_dct4 = st.button('Custom Data Input Result')
+            if choose_dct4:
+                st.header("Custom output data")
+                for i in range(0, len(y_predicted_knn_custom)):
+                    st.subheader(
+                        f"Input No. {i + 1} the model predicted Concentration --> {y_predicted_knn_custom[i]}")
+            else:
+                pass
+            choose_dct5 = st.button('Suggestion on Custom Data')
+            if choose_dct5:
+                ans = mode(y_predicted_knn_custom)
+                sugg = ((ans / 1000000) / 180.16) * 1000000
+                sugg1 = sugg * 1000
+                st.subheader(f"In the Custom Input The Most Frequent Occurring Concentration is {ans} microMolar")
+                st.subheader(f"Which is Equal to {sugg1} mg/L")
+                if 225 < sugg1 < 1500:
+                    st.subheader("Because the Current Concentration is in Ideal Range of 225 to 1500 mg/L according "
+                                 "to N.L.H.")
+                    st.subheader("So it is Recommended :thumbsup:")
+                else:
+                    st.subheader("Because the Current Concentration is not in Ideal Range of 225 to 1500 mg/L according"
+                                 " to N.L.H.")
+                    st.subheader("So it is not Recommended :thumbsdown:")
+            else:
+                pass
         else:
             pass
 
@@ -338,3 +525,24 @@ if s == "Devs":
 if s == "Future Scope":
     st.header(":wrench: Hardware Integration")
     st.subheader(":clock1230: Coming Soon .............................")
+    st.header(":wrench: Analysis on Multiple Chemical")
+    st.subheader(":clock1230: Coming Soon .............................")
+
+if s == "Help":
+    st.header(":green[This is the Help Page, where a new user can get overview of the web application and can learn "
+              "how to "
+              "use it]")
+    st.subheader("Step 1: Open Project Menu")
+    st.image("App_project.png")
+    st.subheader("Step 2: Upload the Data for Training")
+    st.image("App_Data_Upload.png")
+    st.image("App_After_Data_Upload.png")
+    st.subheader("Step 3: Visualize the Dataframe")
+    st.image("App_Dataframe_Visual.png")
+    st.subheader("Step 4: Select a Model of Your Choice")
+    st.image("App_Model_Select.png")
+    st.subheader("Step 5: Get Insights on the Selected Model")
+    st.image("App_Model_Accuracy.png")
+    st.image("App_Model_Visualize.png")
+    st.subheader("Step 6: Test on Custom Data Inputs")
+    st.image("App_Custom_Output.png")
