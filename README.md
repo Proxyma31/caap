@@ -1,2 +1,2 @@
 # caap
-A chemical analysis application powered by machine learning
+A Concentration analysis application powered by machine learning
